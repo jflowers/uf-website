@@ -14,7 +14,7 @@ toc: true
 |---------|---------|
 | `/speckit.specify` | Create a new feature specification (Speckit) |
 | `/opsx-propose <name>` | Create a tactical change with proposal, design, and tasks (OpenSpec) |
-| `/uf.unleash` | Run the full autonomous pipeline: clarify → plan → implement → review → demo |
+| `/uf.unleash` | Run the full autonomous pipeline — routes to Speckit, OpenSpec, or quick tier when no spec exists: clarify → plan → implement → review → demo |
 | `/uf.cobalt-crush` | Implement an OpenSpec change with convention pack adherence |
 | `/uf.review-council` | Pre-PR review with 5+ Divisor personas in parallel |
 | `/uf.review-pr [N]` | Post-PR review with CI causality analysis and fix branch offering |
@@ -23,7 +23,7 @@ toc: true
 
 ## Autonomous Pipeline (`/uf.unleash`) {#autonomous-pipeline-unleash}
 
-`/uf.unleash` is the autonomous Speckit pipeline execution command. It takes a spec from draft to demo-ready code in a single command, orchestrating the full pipeline with graceful exit points and full resumability.
+`/uf.unleash` is the autonomous change pipeline execution command. It takes a change from description to demo-ready code in a single command: when no spec exists yet, tier routing first selects the workflow — Speckit for large scopes, OpenSpec for smaller ones, or a lightweight quick tier for trivial fixes — then orchestrates the full pipeline with graceful exit points and full resumability.
 
 ### The Pipeline
 
@@ -46,9 +46,20 @@ toc: true
 - **Graceful exit points**: Every exit (unanswerable questions, HIGH/CRITICAL findings, worker failures, merge conflicts, test failures, review exhaustion) includes actionable next steps and resume instructions.
 - **CI command derivation**: Build and test commands are derived from `.github/workflows/` files, not hardcoded.
 
+### Tier Routing
+
+When `/uf.unleash` starts on `main` or an unrecognized branch — no spec exists yet — tier routing picks the workflow first:
+
+- **Gather the description** — from the command argument (`/uf.unleash fix the login timeout`) or a single question. A GitHub issue reference (`#123` or an issues URL) is resolved via `gh issue view`, and the issue threads through to the PR (`Closes #123`).
+- **Apply the rubric** — Speckit for new capabilities and cross-cutting changes (3+ user stories, multiple subsystems); OpenSpec for focused features and non-trivial fixes (1-2 stories, bounded blast radius); quick for trivial fixes, chores, and docs (obvious implementation — acceptance is CI green plus code review).
+- **Respect the risk floors** — security-sensitive code, auth flows, data-loss paths, and public-API-breaking changes never route below OpenSpec. Floors escalate; they never demote.
+- **Announce and start** — the decision and its rationale are announced autonomously (no confirmation gate), a `quick/<name>` branch is created for quick changes, and Speckit or OpenSpec changes are delegated to their entry commands (`/speckit.specify`, `/opsx-propose`) with the result verified by a branch-gate re-run.
+
+Quick changes skip the spec-artifact steps (clarify, plan, tasks, spec review) and run implement → code review council → retrospective → demo.
+
 ### Branch Safety
 
-`/uf.unleash` works with both Speckit (`NNN-*`) and OpenSpec (`opsx/*`) feature branches. It never runs on `main`. For Speckit branches, it validates that `spec.md` exists. For OpenSpec branches, it detects the change name from the branch (`opsx/<name>`) and reads tasks from `openspec/changes/<name>/tasks.md`.
+`/uf.unleash` works with Speckit (`NNN-*`), OpenSpec (`opsx/*`), and quick (`quick/*`) feature branches. It never modifies content on `main` — tier routing may start there, but the route decision creates the feature branch before any content work. For Speckit branches, it validates that `spec.md` exists. For OpenSpec branches, it detects the change name from the branch (`opsx/<name>`) and reads tasks from `openspec/changes/<name>/tasks.md`. A tier-named branch with missing artifacts is committed intent — the pipeline stops rather than routing around it.
 
 After `/uf.unleash` completes, the demo step suggests running `/uf.finale` to commit, push, and create a PR.
 
@@ -121,7 +132,7 @@ When the push step (step 4) fails because the remote branch has diverged, `/uf.f
 
 The AI-assisted option (5) spawns a `cobalt-crush-dev` sub-agent that merges the target branch into your feature branch, analyzes the intent of both sides using the diff context, resolves conflict markers programmatically, and creates a merge commit. After resolution, the normal push flow resumes. If the sub-agent cannot resolve the conflicts, `/uf.finale` falls back to manual resolution instructions.
 
-`/uf.finale` works with both Speckit (`NNN-*`) and OpenSpec (`opsx/*`) branches. It is the natural complement to `/uf.unleash` — `/uf.unleash` builds, `/uf.finale` wraps up the branch and creates a PR for review.
+`/uf.finale` works with Speckit (`NNN-*`), OpenSpec (`opsx/*`), and quick (`quick/*`) branches. It is the natural complement to `/uf.unleash` — `/uf.unleash` builds, `/uf.finale` wraps up the branch and creates a PR for review (closing the originating issue when tier routing recorded one).
 
 ## New Feature (End-to-End) {#new-feature-end-to-end}
 
@@ -423,7 +434,7 @@ Label changes are gated behind a confirmation prompt — the command never adds 
 
 ## Bug Fix (Tactical)
 
-For bug fixes and small changes (fewer than 3 user stories), use the OpenSpec tactical workflow instead of the full Speckit pipeline.
+For bug fixes and small changes, [`/uf.unleash`](#autonomous-pipeline-unleash) routes automatically — to the OpenSpec workflow for non-trivial fixes, or to the quick tier for trivial ones. The manual flow below gives you explicit control over each stage.
 
 ### 1. Propose
 
