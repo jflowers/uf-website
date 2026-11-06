@@ -55,7 +55,7 @@ When `/uf.unleash` starts on `main` or an unrecognized branch — no spec exists
 - **Respect the risk floors** — security-sensitive code, auth flows, data-loss paths, and public-API-breaking changes never route below OpenSpec. Floors escalate; they never demote.
 - **Announce and start** — the decision and its rationale are announced autonomously (no confirmation gate), a `quick/<name>` branch is created for quick changes, and Speckit or OpenSpec changes are delegated to their entry commands (`/speckit.specify`, `/opsx-propose`) with the result verified by a branch-gate re-run.
 
-Quick changes skip the spec-artifact steps (clarify, plan, tasks, spec review) and run implement → code review council → retrospective → demo.
+Quick changes skip the spec-artifact steps (clarify, plan, tasks, spec review) and run implement → pre-flight checkpoint → code review council (in code mode — no spec to check against) → retrospective → demo.
 
 ### Branch Safety
 
