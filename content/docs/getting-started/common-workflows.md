@@ -14,7 +14,7 @@ toc: true
 |---------|---------|
 | `/speckit.specify` | Create a new feature specification (Speckit) |
 | `/opsx-propose <name>` | Create a tactical change with proposal, design, and tasks (OpenSpec) |
-| `/uf.unleash` | Run the full autonomous pipeline — routes to Speckit, OpenSpec, or quick tier when no spec exists: clarify → plan → implement → review → demo |
+| `/uf.unleash` | Run the full autonomous pipeline — routes to Speckit, OpenSpec, or the quick tier when no spec exists |
 | `/uf.cobalt-crush` | Implement an OpenSpec change with convention pack adherence |
 | `/uf.review-council` | Pre-PR review with 5+ Divisor personas in parallel |
 | `/uf.review-pr [N]` | Post-PR review with CI causality analysis and fix branch offering |
@@ -59,7 +59,7 @@ Quick changes skip the spec-artifact steps (clarify, plan, tasks, spec review) a
 
 ### Branch Safety
 
-`/uf.unleash` works with Speckit (`NNN-*`), OpenSpec (`opsx/*`), and quick (`quick/*`) feature branches. It never modifies content on `main` — tier routing may start there, but the route decision creates the feature branch before any content work. For Speckit branches, it validates that `spec.md` exists. For OpenSpec branches, it detects the change name from the branch (`opsx/<name>`) and reads tasks from `openspec/changes/<name>/tasks.md`. A tier-named branch with missing artifacts is committed intent — the pipeline stops rather than routing around it.
+`/uf.unleash` works with Speckit (`NNN-*`), OpenSpec (`opsx/*`), and quick (`quick/*`) feature branches. It never modifies content on `main` — tier routing may start there, but a feature branch is created before any content work. For Speckit branches, it validates that `spec.md` exists. For OpenSpec branches, it detects the change name from the branch (`opsx/<name>`) and reads tasks from `openspec/changes/<name>/tasks.md`. A tier-named branch with missing artifacts is committed intent — the pipeline stops rather than routing around it.
 
 After `/uf.unleash` completes, the demo step suggests running `/uf.finale` to commit, push, and create a PR.
 
