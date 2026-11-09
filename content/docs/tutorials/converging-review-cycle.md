@@ -81,7 +81,7 @@ After you confirm the execution plan, the command:
 3. Pushes.
 4. Files the GitHub issue for the MEDIUM finding and queues a reply linking it.
 5. Posts the replies, after showing them to you.
-6. Offers to resolve the threads of ACCEPT, MODIFY, FILE, and REPLY items. REJECT and ASK threads stay open, because they still need an answer.
+6. Offers to resolve the threads of Accept, Modify, File issue, and Reply items. Reject and Ask threads stay open, because they still need an answer.
 
 It does not run `/uf.review-council`. The re-review in the next step is the cycle's one council, so the fixes are not reviewed twice.
 

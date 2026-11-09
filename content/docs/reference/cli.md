@@ -332,7 +332,7 @@ Triage and address PR review feedback with a structured four-phase workflow. Fet
 | 3 | **Triage** | Present each item for a decision. CRITICAL, HIGH, and unlabelled items: Accept, Modify, Reject, or Ask. MEDIUM and LOW items: File issue, Reply, or Ask |
 | 4 | **Execute** | Commit the accepted changes, run the pre-flight checks as a hard gate (up to 3 attempts), push, file issues, post replies, and resolve the addressed threads |
 
-**Severity scope**: an item's severity comes from the label the reviewer gave it. An item with no label, such as most human comments, counts as HIGH. MEDIUM and LOW items never change code in this run; their File issue and Reply threads are resolved so they do not start another feedback run. REJECT and ASK threads stay open.
+**Severity scope**: an item's severity comes from the label the reviewer gave it. An item with no label, such as most human comments, counts as HIGH. MEDIUM and LOW items never change code in this run; their File issue and Reply threads are resolved so they do not start another feedback run. Reject and Ask threads stay open.
 
 **One council per cycle**: `/address-feedback` does not run `/review-council` before pushing. The re-review that follows (`/review-pr`) is the cycle's council, or a light check when the push qualifies.
 
