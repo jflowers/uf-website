@@ -1,6 +1,6 @@
 ---
 title: "The Divisor"
-description: "The Divisor is the PR Reviewer Council — nine canonical sub-personas for code review and content creation, plus two repo-local instruction reviewers, serving as the Code Integrity Guardian."
+description: "The Divisor is the PR Reviewer Council — nine canonical sub-personas for code review and content creation, plus two repo-local instruction reviewers."
 lead: "The Architectural Conscience and Code Integrity Guardian"
 date: 2026-02-23T00:00:00+00:00
 draft: false

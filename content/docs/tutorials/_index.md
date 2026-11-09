@@ -1,6 +1,6 @@
 ---
 title: "Tutorials"
-description: "Step-by-step guides for setting up and using Unbound Force tools — Dewey knowledge stores, Gaze CI integration, onboarding customization, deterministic instruction, review cycles, and more."
+description: "Step-by-step guides for Unbound Force tools — Dewey knowledge stores, Gaze CI integration, onboarding, deterministic instruction, review cycles, and more."
 lead: "Hands-on guides that walk you through setup, configuration, and daily usage of the Unbound Force toolchain."
 date: 2026-08-23T00:00:00+00:00
 draft: false
