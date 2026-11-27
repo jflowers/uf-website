@@ -10,7 +10,8 @@ push to `main`.
 ## Run it locally
 
 You need Node.js 20.11 or later and Go 1.23 or later (Hugo uses Go to
-resolve its modules). Hugo itself comes in through npm.
+resolve its modules), plus the Hugo extended binary installed separately —
+CI pins 0.155.1; `brew install hugo` or see gohugo.io.
 
 ```bash
 npm install
