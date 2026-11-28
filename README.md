@@ -9,9 +9,15 @@ push to `main`.
 
 ## Run it locally
 
-You need Node.js 20.11 or later and Go 1.23 or later (Hugo uses Go to
-resolve its modules), plus the Hugo extended binary installed separately —
-CI pins 0.155.1; `brew install hugo` or see gohugo.io.
+You need:
+
+- Node.js 20.11 or later, as set by `engines` in [`package.json`](package.json).
+- Go 1.23 or later, as set in [`go.mod`](go.mod). Hugo uses it to resolve
+  its modules.
+- The Hugo extended binary. npm doesn't install it, so install it yourself
+  with `brew install hugo` or from
+  [gohugo.io](https://gohugo.io/installation/). CI uses the version pinned
+  in [`ci.yml`](.github/workflows/ci.yml).
 
 ```bash
 npm install
@@ -25,16 +31,16 @@ npm run build    # output goes to public/
 npm run preview
 ```
 
-## Where things live
+## Where the site's source lives
 
-| Path | What's there |
-|------|--------------|
-| `content/docs/` | Documentation pages, by section |
-| `content/blog/` | Blog posts |
-| `config/_default/` | Hugo settings, theme parameters and menus |
-| `assets/scss/common/` | Theme colors, fonts and custom CSS |
-| `layouts/` | Template overrides |
-| `static/` | Images and other files served as is |
+| Path                  | What's there                              |
+| --------------------- | ----------------------------------------- |
+| `content/docs/`       | Documentation pages, by section           |
+| `content/blog/`       | Blog posts                                |
+| `config/_default/`    | Hugo settings, theme parameters and menus |
+| `assets/scss/common/` | Theme colors, fonts and custom CSS        |
+| `layouts/`            | Template overrides                        |
+| `static/`             | Images and other files served as is       |
 
 ## Contributing
 
