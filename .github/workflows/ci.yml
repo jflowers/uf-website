@@ -1,0 +1,82 @@
+# CI: build the site on every pull request, the same way
+# deploy-gh-pages.yml builds it for GitHub Pages, without deploying.
+# "CI OK" becomes the required check on main once the safe-settings change
+# lands in unbound-force/.github; until then "Build" remains required, so
+# nothing merges, by hand or by gh-hud's auto-merge, until the site builds.
+# Chore PRs (Dewey learnings, gh-hud toolkit rollouts) skip the build: see the
+# scope job.
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # code == 'false' only for PRs that touch nothing but Dewey learnings
+  # or a gh-hud toolkit rollout's .opencode/ files.
+  scope:
+    uses: jflowers/ship/.github/workflows/pr-scope.yml@3b0ce8bf47183be402df9eaec16644c213eee5f7 # main, after v0.11.0
+    permissions:
+      contents: read
+
+  build:
+    name: Build
+    needs: scope
+    if: ${{ !cancelled() && !(needs.scope.result == 'success' && needs.scope.outputs.code == 'false') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@75d2e84710de30f6ff7268e08f310b60ef14033f # v3
+        with:
+          hugo-version: '0.155.1'
+          extended: true
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: hugo --minify --gc --baseURL "https://unboundforce.dev/"
+
+  # Required check. Passes only when scope succeeded and Build ran and
+  # passed (code PRs) or was skipped (chore PRs). A skipped job counts as
+  # passing, so a failed scope job must fail here.
+  ci-ok:
+    name: CI OK
+    needs: [scope, build]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check needed jobs
+        env:
+          SCOPE: ${{ needs.scope.result }}
+          CODE: ${{ needs.scope.outputs.code }}
+          BUILD: ${{ needs.build.result }}
+        run: |
+          echo "scope=$SCOPE code=$CODE build=$BUILD"
+          [ "$SCOPE" = success ] || { echo "::error::scope: $SCOPE"; exit 1; }
+          case "$CODE" in
+            true) want=success ;;
+            false) want=skipped ;;
+            *) echo "::error::scope code '$CODE'"; exit 1 ;;
+          esac
+          [ "$BUILD" = "$want" ] || { echo "::error::Build: $BUILD, want $want"; exit 1; }
+          echo "CI passed."
