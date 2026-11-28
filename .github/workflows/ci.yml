@@ -1,10 +1,9 @@
 # CI: build the site on every pull request, the same way
 # deploy-gh-pages.yml builds it for GitHub Pages, without deploying.
-# "CI OK" becomes the required check on main once the safe-settings change
-# lands in unbound-force/.github; until then "Build" remains required, so
-# nothing merges, by hand or by gh-hud's auto-merge, until the site builds.
-# Chore PRs (Dewey learnings, gh-hud toolkit rollouts) skip the build: see the
-# scope job.
+# "CI OK" is the required check on main (unbound-force/.github's
+# safe-settings/repos/website.yml), so nothing merges, by hand or by gh-hud's
+# auto-merge, until it passes. Chore PRs (Dewey learnings, gh-hud toolkit
+# rollouts) skip the build: see the scope job.
 name: CI
 
 on:
@@ -20,10 +19,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # code == 'false' only for PRs that touch nothing but Dewey learnings
-  # or a gh-hud toolkit rollout's .opencode/ files.
+  # code == 'false' only for a pull request whose changed files are all:
+  #   - regular .md files under learnings_dir (Dewey learnings), from anyone; or
+  #   - under toolkit_paths, in a PR toolkit_author opened from a
+  #     chore/toolkit-* branch (gh-hud toolkit rollouts; the branch pattern is
+  #     fixed in pr-scope.yml).
+  # Everything else, and every push, is code == 'true'. The inputs below are
+  # pr-scope.yml's defaults, spelled out so the skip policy reads here.
+  # Break glass: if jflowers/ship is unreachable, scope fails, Build still
+  # runs, and CI OK fails; an org admin can merge past the ruleset, or point
+  # this pin at a fork of the same commit.
   scope:
-    uses: jflowers/ship/.github/workflows/pr-scope.yml@3b0ce8bf47183be402df9eaec16644c213eee5f7 # main, after v0.11.0
+    uses: jflowers/ship/.github/workflows/pr-scope.yml@3b0ce8bf47183be402df9eaec16644c213eee5f7 # v0.12.0
+    with:
+      learnings_dir: .uf/dewey/learnings/
+      toolkit_paths: .opencode/
+      toolkit_author: jflowers
     permissions:
       contents: read
 
@@ -56,12 +67,22 @@ jobs:
         run: hugo --minify --gc --baseURL "https://unboundforce.dev/"
 
   # Required check. Passes only when scope succeeded and Build ran and
-  # passed (code PRs) or was skipped (chore PRs). A skipped job counts as
-  # passing, so a failed scope job must fail here.
+  # passed (code PRs) or was skipped (chore PRs): a required check that is
+  # skipped counts as passing, so this job must fail whenever scope did.
+  #
+  #   scope     code   Build      CI OK   seen on
+  #   success   true   success    pass    #467 (a code PR)
+  #   success   true   failure    FAIL
+  #   success   false  skipped    pass    a learnings-only PR (#469)
+  #   success   false  success    FAIL    (Build's if: never allows this)
+  #   failure   -      success    FAIL    Build runs: its if: is fail-closed
+  #   cancelled -      any        FAIL
+  #   success   other  any        FAIL    unknown code value
   ci-ok:
     name: CI OK
     needs: [scope, build]
     if: always()
+    permissions: {}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
